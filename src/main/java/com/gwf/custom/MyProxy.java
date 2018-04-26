@@ -47,19 +47,28 @@ public class MyProxy {
             fw.close();
 
             // 3.编译源代码，并生成.java文件
+
+            // 获取java编译器
             JavaCompiler javaCompiler = ToolProvider.getSystemJavaCompiler();
+            // 标注java文件管理器，用来获取java字节码文件
             StandardJavaFileManager manager = javaCompiler.getStandardFileManager(null,null,null);
             Iterable iterable = manager.getJavaFileObjects(file);
 
+            // 创建task，通过java字节码文件将类信息加载到JVM中
             JavaCompiler.CompilationTask task = javaCompiler.getTask(null,manager,null,null,null,iterable);
+            // 开始执行task
             task.call();
+            // 关闭管理器
             manager.close();
 
             // 4.将class文件中的内容，动态加载到JVM中
             Class proxyClass = loader.findClass("$Proxy0");
 
             // 5.返回被代理后的代理对象
+            // proxyClass.getDeclaredConstructor(MyInvocationHandler.class);
+            // c.setAccessible(true); 通过反射访问私有构造函数
             Constructor c = proxyClass.getConstructor(MyInvocationHandler.class);
+
             return c.newInstance(h);
         } catch (Exception e) {
             e.printStackTrace();
